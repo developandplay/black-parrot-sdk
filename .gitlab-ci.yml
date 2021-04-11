@@ -1,11 +1,10 @@
 image: ubuntu:20.04
 
 stages:
-  - build
   - release
 
 build:
-  stage: build
+  stage: release
   script:  
     - apt update
     - DEBIAN_FRONTEND="noninteractive" apt install -y git autoconf automake autotools-dev cmake curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev wget byacc device-tree-compiler python gtkwave vim-common virtualenv python-yaml
@@ -16,16 +15,6 @@ build:
     - tar -czvf dist/sdk.tgz install prog lib ucode include bedrock perch bootrom bp-demos bp-tests
     - make build_prog -j$(nproc)
     - tar -czvf dist/prog.tgz install prog lib ucode include bedrock perch bootrom bp-demos bp-tests riscv-tests coremark beebs
-  only:
-    - tags
-  timeout: 10 hours
-  artifacts:
-    paths:
-      - dist
-
-release:
-  stage: release
-  script:
     - apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
     - apt-add-repository https://cli.github.com/packages
     - apt update
@@ -34,5 +23,4 @@ release:
     - gh config set prompt disabled
     - gh release create $CI_COMMIT_TAG ./dist/*.tgz --repo developandplay/black-parrot-sdk
   only:
-    - tags  
-  timeout: 30 minutes
+    - tags
