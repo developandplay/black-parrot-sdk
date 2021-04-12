@@ -16,7 +16,7 @@ build:
     - make build_prog -j$(nproc)
     - tar -czvf dist/prog.tgz install prog lib ucode include bedrock perch bootrom bp-demos bp-tests riscv-tests coremark beebs
     - apt update
-    - apt install-y software-properties-common
+    - apt install -y software-properties-common
     - apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
     - apt-add-repository https://cli.github.com/packages
     - apt update
