@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:        
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Build SDK
+        run: |
+          sudo apt update
+          DEBIAN_FRONTEND="noninteractive" sudo apt install -y git autoconf automake autotools-dev cmake curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev wget byacc device-tree-compiler python gtkwave vim-common virtualenv python-yaml
+          mkdir dist
+          make sdk_lite -j$(nproc)
+          tar -czvf dist/sdk_lite.tgz install
+          make sdk -j$(nproc)
+          tar -czvf dist/sdk.tgz install prog lib ucode include bedrock perch bootrom bp-demos bp-tests
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: sdk
+          path: |
+            dist
+
+  relase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: sdk
+      - name: Release SDK
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/sdk_lite.tgz
+            dist/sdk.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
